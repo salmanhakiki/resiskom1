@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HIMARESISKOM - Pembayaran</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: #2563eb;
+      color: white;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 24px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #64748b;
+    }
+
+    .tab.active {
+      background: white;
+      color: #2563eb;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #334155;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+      transition: border-color 0.2s;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .checkbox-item {
+      position: relative;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .checkbox-item label {
+      display: block;
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 0;
+    }
+
+    .checkbox-item input:checked + label {
+      background: #2563eb;
+      color: white;
+      border-color: #2563eb;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+      margin-bottom: 12px;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-primary:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .alert.success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .alert.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 12px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+      }
+
+      .container {
+        border-radius: 0;
+        min-height: 100vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>HIMARESISKOM</h1>
+      <p>Pembayaran Kas & Jaket</p>
+    </div>
+
+    <div class="content">
+      <div class="alert" id="alert"></div>
+
+      <div class="tabs">
+        <button class="tab active" data-type="kas">Kas Mingguan</button>
+        <button class="tab" data-type="jaket">Jaket</button>
+      </div>
+
+      <!-- FORM KAS -->
+      <form id="form-kas" class="form-section">
+        <div class="form-group">
+          <label>Nama</label>
+          <select id="kas-nama" required>
+            <option value="">Pilih nama...</option>
+            <option>Darmawan Ahmad Wijaya</option>
+            <option>Salman Hakiki</option>
+            <option>Taupik Abdul Aziz</option>
+            <option>M. Muftie Gifari</option>
+            <option>Hary Rosan Maulana</option>
+            <option>Fuja Bungsu</option>
+            <option>Mita Mutiara</option>
+            <option>Evril Abrilianti</option>
+            <option>Raudatul Gani</option>
+            <option>Moch Hamzah</option>
+            <option>Luki</option>
+            <option>Suhendra</option>
+            <option>Aditya Pratama Subagja</option>
+            <option>Bhima Febriana Fauzan</option>
+            <option>Ezzar Dwi Raditya</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Bulan</label>
+          <select id="kas-bulan" required>
+            <option value="">Pilih bulan...</option>
+            <option value="juni">Juni</option>
+            <option value="juli">Juli</option>
+            <option value="agustus">Agustus</option>
+            <option value="september">September</option>
+            <option value="oktober">Oktober</option>
+            <option value="november">November</option>
+            <option value="desember">Desember</option>
+            <option value="januari">Januari</option>
+            <option value="februari">Februari</option>
+            <option value="maret">Maret</option>
+            <option value="april">April</option>
+            <option value="mei">Mei</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Minggu (pilih yang dibayar)</label>
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="minggu1" value="1">
+              <label for="minggu1">1</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="minggu2" value="2">
+              <label for="minggu2">2</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="minggu3" value="3">
+              <label for="minggu3">3</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="minggu4" value="4">
+              <label for="minggu4">4</label>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btn-kas">Kirim Pembayaran</button>
+      </form>
+
+      <!-- FORM JAKET -->
+      <form id="form-jaket" class="form-section hidden">
+        <div class="form-group">
+          <label>Nama</label>
+          <select id="jaket-nama" required>
+            <option value="">Pilih nama...</option>
+            <option>Darmawan Ahmad Wijaya</option>
+            <option>Salman Hakiki</option>
+            <option>Taupik Abdul Aziz</option>
+            <option>M. Muftie Gifari</option>
+            <option>Hary Rosan Maulana</option>
+            <option>Fuja Bungsu</option>
+            <option>Mita Mutiara</option>
+            <option>Evril Abrilianti</option>
+            <option>Raudatul Gani</option>
+            <option>Moch Hamzah</option>
+            <option>Luki</option>
+            <option>Suhendra</option>
+            <option>Aditya Pratama Subagja</option>
+            <option>Bhima Febriana Fauzan</option>
+            <option>Ezzar Dwi Raditya</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Nominal (Rp)</label>
+          <input type="number" id="jaket-nominal" placeholder="50000" min="1000" step="1000" required>
+        </div>
+
+        <div class="form-group">
+          <label>Keterangan</label>
+          <select id="jaket-keterangan" required>
+            <option value="">Pilih keterangan...</option>
+            <option value="DP Jaket">DP Jaket</option>
+            <option value="Pelunasan Akhir">Pelunasan Akhir</option>
+            <option value="Lunas (DP + Pelunasan)">Lunas (DP + Pelunasan)</option>
+            <option value="Cicilan Jaket">Cicilan Jaket</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btn-jaket">Kirim Pembayaran</button>
+      </form>
+
+      <button class="btn btn-secondary" id="btn-spreadsheet">
+        Buka Spreadsheet
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxcUxnw7OLSng13vvChVtOYCEHHIniMgZljeNx0Bg8p-8rLRcqS8p2Ra971jZKw_r1-6w/exec',
+      SPREADSHEET_URL: 'https://docs.google.com/spreadsheets/d/1cgEfwLtxTXynCAQgu8NFaOW6e2Yr2lZbC74fhhMCOHA/edit'
+    };
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const type = tab.dataset.type;
+        
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        document.getElementById('form-kas').classList.toggle('hidden', type !== 'kas');
+        document.getElementById('form-jaket').classList.toggle('hidden', type !== 'jaket');
+        
+        hideAlert();
+      });
+    });
+
+    // Form KAS submit
+    document.getElementById('form-kas').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const nama = document.getElementById('kas-nama').value;
+      const bulan = document.getElementById('kas-bulan').value;
+      const mingguCheckboxes = document.querySelectorAll('#form-kas input[type="checkbox"]:checked');
+      const minggu = Array.from(mingguCheckboxes).map(cb => cb.value);
+
+      if (!nama || !bulan || minggu.length === 0) {
+        showAlert('Lengkapi semua field', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn-kas');
+      btn.disabled = true;
+      btn.textContent = 'Mengirim...';
+
+      try {
+        const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'kas',
+            nama: nama,
+            bulan: bulan,
+            minggu: minggu
+          })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          showAlert(`✓ ${result.message}`, 'success');
+          document.getElementById('form-kas').reset();
+        } else {
+          showAlert(`✗ ${result.message}`, 'error');
+        }
+      } catch (error) {
+        showAlert('Gagal mengirim. Cek koneksi internet.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Kirim Pembayaran';
+      }
+    });
+
+    // Form JAKET submit
+    document.getElementById('form-jaket').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const nama = document.getElementById('jaket-nama').value;
+      const nominal = document.getElementById('jaket-nominal').value;
+      const keterangan = document.getElementById('jaket-keterangan').value;
+
+      if (!nama || !nominal || !keterangan) {
+        showAlert('Lengkapi semua field', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn-jaket');
+      btn.disabled = true;
+      btn.textContent = 'Mengirim...';
+
+      try {
+        const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'jaket',
+            nama: nama,
+            nominal: parseInt(nominal),
+            keterangan: keterangan
+          })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          showAlert(`✓ ${result.message}`, 'success');
+          document.getElementById('form-jaket').reset();
+        } else {
+          showAlert(`✗ ${result.message}`, 'error');
+        }
+      } catch (error) {
+        showAlert('Gagal mengirim. Cek koneksi internet.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Kirim Pembayaran';
+      }
+    });
+
+    // Open spreadsheet
+    document.getElementById('btn-spreadsheet').addEventListener('click', () => {
+      window.open(CONFIG.SPREADSHEET_URL, '_blank');
+    });
+
+    function showAlert(message, type) {
+      const alert = document.getElementById('alert');
+      alert.textContent = message;
+      alert.className = `alert ${type} show`;
+    }
+
+    function hideAlert() {
+      document.getElementById('alert').classList.remove('show');
+    }
+  </script>
+</body>
+</html>
